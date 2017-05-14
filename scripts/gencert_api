@@ -1,0 +1,16 @@
+#!/bin/bash
+# 
+# This script allows server certificates to be issue from a command line:
+# 
+
+CA_SERVER="https://localhost/myCA"
+USERNAME=admin
+REQUEST_OPTIONS=
+SITENAME=www.example.com
+DAYS=90
+SAN="www.example.com,example.com"
+
+openssl genpkey -algorithm RSA -out ${SITENAME}.key -pkeyopt rsa_keygen_bits:4096
+openssl req -out ${SITENAME}.csr -key ${SITENAME}.key -new -subj "/CN=${SITENAME}" ${REQUEST_OPTIONS}
+
+curl -s -u ${USERNAME} --data-urlencode "csr@${SITENAME}.csr"  "${CA_SERVER}/index.php?type=server&action=sign&cn=${SITENAME}&days=${DAY}&san=${SAN}" -o ${SITENAME}.crt

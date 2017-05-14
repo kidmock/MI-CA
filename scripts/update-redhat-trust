@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl -s -u admin http://localhost/myCA/index.php?type=main&action=loadCA -O /etc/pki/ca-trust/source/anchors/myca.crt
+
+update-ca-trust enable 
+
+update-ca-trust extract

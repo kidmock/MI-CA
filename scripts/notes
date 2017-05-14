@@ -1,0 +1,47 @@
+Serious about security? Never transfer private keys
+
+On an super secure air gapped system create ROOT CA
+1. Create a super strong private key and super strong passphrase
+2. Create a super strong Self-Sign Root Cert using:
+   basicConstraints=critical,CA:true
+   NOTE: If you made this cert and key super strong you may want to give it a long life 20-30 years depending how long you think it will be secure.
+
+On another server create OCSP responder for ROOT
+1. Create a private strong key (password can be empty blank since it will only be used validate certs issued from ROOT CA)
+2. Create a CSR and Sign with ROOT Cert using:
+    basicConstraints=critical,CA:false
+    keyUsage=critical,digitalSignature
+    extendedKeyUsage=critical,OCSPSigning
+3. Copy cert from ROOT CA (never the key) to OCSP Responder host
+4. Setup OCSP responder:
+   openssl ocsp -index ${ROOT_CA_INDEX.TXT} -port ${ROOT_OCSP_TCP_PORT} -rsigner ${ROOT_OCSP_CERT} -rkey ${ROOT_OCSP_KEY} -CA ${ROOT_CA_CERT}
+   NOTE: any time a new certificate is issued, revoked, renewed, or expired the ${ROOT_CA_INDEX.TXT} needs to be updated and reloaded
+
+On another server create a Intermediate CA
+1. Create a super strong private key and super strong passphrase
+2. Create a CSR and Sign with Root CA:
+   basicConstraints=critical,CA:true,pathlen:0
+   authorityInfoAccess = OCSP;URI:http://${ROOT_OCSP_HOST}:${ROOT_OCSP_TCP_PORT}
+3. Update ${ROOT_CA_INDEX.TXT} and transfer to ${ROOT_OCSP_HOST}
+4. Combined Intermediate Cert and Root Cert as a bundled chain. Intermediate 1st, Root 2nd in chain
+5. Root CA system can be powered off and further secured. Be sure to protect the ROOT Key.
+   NOTE: If you made this cert and key super strong you may want to give it a long life 20-30 years depending how long you think it will be secure.
+         But it should be less than or equal to the life of the ROOT CA.
+
+On another server create OCSP responder for Intermediate
+1. Create a Strong Key (password can be empty blank since it will only be used validate certs issued from Intermediate CA)
+2. Create a CSR and Sign with Intermediate Cert using:
+    basicConstraints=critical,CA:false
+    keyUsage=critical,digitalSignature
+    extendedKeyUsage=critical,OCSPSigning
+    authorityInfoAccess = OCSP;URI:http://${ROOT_OCSP_HOST}:${ROOT_OCSP_TCP_PORT}
+3. Copy cert from Bundled Cert Chain (never the keys) to OCSP Responder host
+4. Setup OCSP responder: 
+   openssl ocsp -index ${INT_CA_INDEX.TXT} -port ${INT_OCSP_TCP_PORT} -rsigner ${INT_OCSP_CERT} -rkey ${INT_OCSP_KEY} -CA ${BUNDLED_CA_CERT}
+   NOTE: any time a new certificate is issued, revoked, renewed, or expired the ${INT_CA_INDEX.TXT} needs to be updated.
+
+
+Start issuing internal certs:
+   authorityInfoAccess = OCSP;URI:http://${INT_OCSP_HOST}:${INT_OCSP_TCP_PORT}, caIssuers;URI:http://${SOME_HOST}/${BUNDLED_CA_CERT}
+   NOTE: You want to have signed certs with a short lifetime 90 days to 1 year and create  key with every renewal.
+

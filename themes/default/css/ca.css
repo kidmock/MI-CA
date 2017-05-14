@@ -1,0 +1,147 @@
+/* TAG STYLES */
+
+.formRow div {
+	display:inline-block;
+	margin:5px 0px;
+}
+
+.formRow input { 
+	margin-left:4px;
+	width:250px;
+}
+
+.formRow textarea {
+	margin-left:4px;
+	width:400px;
+}
+
+.options li { padding:5px 0px; }
+
+.controls input {
+	float:right;
+	margin-right:5px;
+}
+
+
+/* ID STYLES */
+
+#boundary {
+	margin:20px auto 0px auto;
+	width:960px;
+	max-width:960px;
+	min-height:600px;
+}
+
+/* CLASS STYLES */
+
+.info {
+	font-family:Verdana, sans-serif;
+	font-style:italic;
+	font-size:10pt;
+	margin-left:2em;
+}
+.clr { clear:both; }
+.fl { float:left; }
+.fr { float:right; }
+
+
+.title {
+	padding:20px 0px 0px 0px;
+	margin:0px;
+}
+
+.sectionWide { padding:0px; }
+
+.sectionNarrow {
+	width:450px;
+	margin:0px 20px 0px 0px;
+	padding:0px;
+}
+
+.fieldName {
+	width:240px;
+	text-align:right;
+	vertical-align:top;
+	font-weight:600;
+	padding:0px 5px 0px 0px;
+}
+
+.note {
+    font-weight:normal;
+    font-size:9pt;
+    width:150px;
+}
+
+.opsTable {
+	border-collapse:collapse;
+	padding:0px;
+	width:100%;
+}
+
+.opsTable td {
+	padding:0px 0px;
+}
+
+.opsTable h3 {
+	padding-bottom:0px;
+	margin-top:10px;
+	margin-bottom:5px;
+}
+
+
+.opsLink {
+	font-weight:bold;
+	/*text-shadow:#c0c0c0 2px 2px 2px;*/
+	padding-top:0px;
+	padding-bottom:0px;
+	margin-top:7px;
+	margin-bottom:12px;
+}
+
+.opsLink:hover {
+	color:#ffc000;
+}
+
+.narrowForm {
+	width:510px;
+	min-width:490px;
+	margin-top:20px;
+	padding-bottom:40px;
+}
+
+.wideForm {
+	width:660px;
+	min-width:490px;
+	margin-top:20px;
+	padding-bottom:40px;
+}
+
+#csrInputForm .shortInput { width:40px; }
+.controls { margin-top:10px; }
+.required {
+	font-weight:600;
+	color:red;
+}
+
+.bigButton {
+	/*margin:20px;*/
+	margin:0px;
+	padding:0px;
+	text-align:center;
+	vertical-align:middle;
+}
+
+.bigButton p {
+	line-height:60px;
+}
+
+.bigButton:hover, .bigButton:hover {
+	border-color:#4f6228;
+	background-color:#ebf1de;
+	color:#4f6628;
+	font-size:18px;
+}
+
+.output {
+	padding-left:20px;
+}

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CACERT="../data/ca/cacerts/cacert.pem"
+CABUNBLE="../data/ca/cacerts/combined.pem"
+OCSP_HOST="localhost"
+
+
+
+openssl ocsp -issuer ${CACERT} -CAfile ${CABUNBLE} -url http://${OCSP_HOST} -header 'host' "${OCSP_HOST}" -text -cert $1

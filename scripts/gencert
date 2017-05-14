@@ -1,0 +1,56 @@
+#!/bin/bash -e
+
+CONFIG="./config/openssl.cnf"
+KEYDIR="./data/ca/keys"
+CSRDIR="./data/ca/csr"
+CERTDIR="./data/ca/certs"
+CAKEY="./data/ca/keys/cakey.pem"
+CACERT="./data/ca/cacerts/cacert.pem"
+KEYSIZE=4096
+DAYS="90"
+MD="sha512"
+CAPW=`cat ../config/config.php | grep passPhrase | awk -F = '{print $2}'| sed -e 's/"//g' | sed -e 's/ //g' | sed -e s'/;//g'`
+
+if [[ -z "$1" ]]; then cat <<EOF
+
+certgen - Creates a signed X.509 SSL/TLS certificate
+          with the "subjectAltName" extension.
+
+Usage: certgen example.com [www.example.com] [mail.example.com] [...]
+
+EOF
+exit; fi
+
+OLDPWD=`pwd`
+umask 066
+
+cd ..
+
+SITENAME="$1"
+SAN="DNS:$1"
+
+while shift && (($#)); do SAN="$SAN,DNS:$1"; done
+
+echo -e "keyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth,clientAuth\nbasicConstraints=critical,CA:FALSE\nsubjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid,issuer:alwaysnsubjectAltName=$SAN" > ${SITENAME}.ext
+
+cp ${CONFIG} ${SITENAME}.cnf
+
+echo -e "[ v3_req ]\nsubjectAltName=$SAN" >> ${SITENAME}.cnf
+
+openssl genpkey -algorithm RSA -out ${KEYDIR}/${SITENAME}.key -pkeyopt rsa_keygen_bits:${KEYSIZE}
+
+openssl req -out ${CSRDIR}/${SITENAME}.csr -key ${KEYDIR}/${SITENAME}.key -new -subj "/CN=${SITENAME}" -config ${SITENAME}.cnf -reqexts v3_req
+
+openssl ca -batch -in "${CSRDIR}/${SITENAME}.csr" -out "${CERTDIR}/${SITENAME}.crt"  -config ${CONFIG} -days $DAYS -md ${MD} -extfile ${SITENAME}.ext -passin pass:${CAPW}
+
+cat <<EOF
+`tput bold`
+Success! Your brand new certificate has been written to "${CERTDIR}/${SITENAME}.crt".
+Your private key has been written to "${KEYDIR}/${SITENAME}.key". Share the certificate
+with everyone, and the key with no one!
+`tput sgr0`
+EOF
+
+rm ${SITENAME}.cnf ${SITENAME}.ext
+
+cd $OLDPWD

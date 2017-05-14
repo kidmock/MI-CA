@@ -1,0 +1,81 @@
+HOME                    = .
+RANDFILE                = /dev/urandom 
+
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir               = ./data/ca 
+certs             = $dir/certs
+crl_dir           = $dir/crl
+new_certs_dir     = $dir/newcerts
+database          = $dir/index.txt
+serial            = $dir/serial
+RANDFILE          = /dev/urandom
+private_key       = $dir/keys/cakey.pem
+certificate       = $dir/cacerts/cacert.pem 
+crlnumber         = $dir/crlnumber
+crl               = $dir/crl/cacrl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+default_md        = sha512
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 375
+preserve          = no
+policy            = policy_loose
+
+[ policy_loose ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits        = 4096
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+default_md          = sha512
+
+[ req_distinguished_name ]
+commonName                      = Common Name
+
+[ v3_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ user_cert ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+#authorityInfoAccess = OCSP;URI:http://ocsp.example.info/, caIssuers;URI:http://example.info/exampleIntCA1.crt
+#crlDistributionPoints = URI:http://example.info/exampleIntCA1.crl
+extendedKeyUsage = clientAuth, emailProtection
+subjectAltName = email:copy
+
+
+[ crl_ext ]
+authorityKeyIdentifier=keyid:always
+
+[ ocsp ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning
+
+[ server_cert ]
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+#authorityInfoAccess = OCSP;URI:http://ocsp.example.info/, caIssuers;URI:http://example.info/exampleIntCA1.crt
+#crlDistributionPoints = URI:http://example.info/exampleIntCA1.crl
+

@@ -1,0 +1,67 @@
+#/bin/bash
+
+RUNAS=apache
+
+CA_DIR="/common/data/openssl/intermediate"
+CA_CONF="/common/conf/openssl/intca_nosan.cnf"
+CA_PASS="/common/conf/openssl/capw"
+
+
+PROGNAME="${0}"
+
+TODAY=`date +%Y%m%d`
+WHOAMI=`whoami`
+
+export RANDFILE="${CA_DIR}/private/.rand"
+
+if [ "${WHOAMI}" != "${RUNAS}" ] ; then
+
+echo ""
+echo "This program must be run as ${RUNAS}"
+echo "Try \"sudo -u ${RUNAS} ${PROGNAME} \" "
+echo ""
+exit 0
+
+fi
+
+
+
+
+# Find the cert to rovoke
+echo ""
+echo "Revoke Certificate":
+
+echo ""
+ls -1 ${CA_DIR}/certs | sed -e 's/\.crt//g' | sort 
+echo""
+
+
+echo -n "Please enter Cert Name: "
+read CERT_NAME
+
+
+if [ -f ${CA_DIR}/certs/${CERT_NAME}.crt ] ; then 
+
+# Revoke Certificate
+openssl ca -config ${CA_CONF} -revoke ${CA_DIR}/certs/${CERT_NAME}.crt -passin file:${CA_PASS}
+
+# Update CRL 
+openssl ca -config ${CA_CONF} -gencrl -out ${CA_DIR}/crl/intermediate.crl -passin file:${CA_PASS}
+
+# Move key, cert and csr to new folder
+mv ${CA_DIR}/certs/${CERT_NAME}.crt ${CA_DIR}/revoked/${TODAY}_${CERT_NAME}.crt
+else
+
+exit 0
+
+fi
+
+if [ -f ${CA_DIR}/certs/${CERT_NAME}.key ] ; then 
+mv ${CA_DIR}/private/${CERT_NAME}.key ${CA_DIR}/revoked/${TODAY}_${CERT_NAME}.key
+fi
+
+if [ -f ${CA_DIR}/certs/${CERT_NAME}.csr ] ; then 
+mv ${CA_DIR}/csr/${CERT_NAME}.csr ${CA_DIR}/revoked/${TODAY}_${CERT_NAME}.csr
+fi
+
+

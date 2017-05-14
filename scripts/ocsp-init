@@ -1,0 +1,183 @@
+#!/bin/sh
+#
+# ocsp	Stops and starts an OpenSSL OCSP Responder
+#
+# chkconfig: 2345 99 1
+# description: Openfire is an XMPP server, which is a server that facilitates \
+#              XML based communication, such as chat.
+# config: /etc/sysconfig/ocsp
+# pidfile: /var/run/ocsp.pid
+# 
+# This script has currently been tested on Redhat, CentOS, and Fedora  based
+# systems.
+#
+
+#####
+# Begin setup work
+#####
+
+# Initialization
+PATH="/sbin:/bin:/usr/bin:/usr/sbin"
+RETVAL=0
+
+# Check that we are root ... so non-root users stop here.
+if [ "`id -u`" != 0 ]; then
+	echo $0 must be run as root
+	exit 1
+fi
+
+# Get config.
+if [ -f "/etc/init.d/functions" ]; then
+  FUNCTIONS_FOUND=true
+  . /etc/init.d/functions
+fi
+
+# Source Variables
+if [ -f /etc/sysconfig/ocsp ] ; then
+       . /etc/sysconfig/ocsp
+
+else
+
+   echo "/etc/sysconfig/ocsp doesn't exist"
+   echo
+   echo "The following variables need to be set in /etc/sysconfig/ocsp"
+   echo
+   echo "OCSP_USER="
+   echo "OCSP_INDEX="
+   echo "OCSP_PORT="
+   echo "OCSP_SIGN="
+   echo "OCSP_KEY="
+   echo "OCSP_CA="
+   echo "OCSP_LOGDIR="
+   echo ""
+   exit
+
+fi
+OCSP_USER=apache
+# If ocsp user is not set in sysconfig, set to daemon.
+[ -z "$OCSP_USER" ] && OCSP_USER="daemon"
+
+# If pid file path is not set in sysconfig, set to /var/run/ocsp.pid.
+[ -z "$OCSP_PIDFILE" ] && OCSP_PIDFILE="/var/run/ocsp.pid"
+
+# -----------------------------------------------------------------
+
+# If log path is not set in sysconfig, set to $OCSP_HOME/logs.
+#[ -z "$OCSP_LOGDIR" ] && OCSP_LOGDIR="${OCSP_HOME}/logs"
+
+#OCSP_INDEX
+#OCSP_PORT
+#OCSP_SIGN
+#OCSP_KEY
+#OCSP_CA
+#OCSP_LOGDIR
+
+
+# Lastly, prepare the full command that we are going to run.
+OCSP_RUN_CMD="openssl ocsp -index ${OCSP_INDEX} -port ${OCSP_PORT} -rsigner ${OCSP_SIGN} -rkey ${OCSP_KEY} -CA ${OCSP_CA} -text -out ${OCSP_LOGDIR}/ocsp.log"
+
+#####
+# End setup work
+#####
+
+
+
+start() {
+
+	PID=$(findPID)
+	if [ -n "$PID" ]; then                                                
+	    echo "OCSP is already running."                                 
+	    RETVAL=1                                                           
+	    return                                                             
+	fi                                                                     
+
+	# Start daemons.                                                       
+	echo -n "Starting OCSP Responder: "                                          
+
+	rm -f nohup.out
+	su -s /bin/sh -c "nohup $OCSP_RUN_CMD > $OCSP_LOGDIR/nohup.out 2>&1 &" $OCSP_USER
+	RETVAL=$?
+
+	[ $RETVAL -eq 0 -a -d /var/lock/subsys ] && touch /var/lock/subsys/ocsp
+
+	sleep 1 # allows prompt to return
+
+	PID=$(findPID)
+	echo $PID > $OCSP_PIDFILE
+        success
+        echo
+
+}
+
+stop() {
+	# Stop daemons.
+	echo -n "Shutting down OCSP Responder: "
+
+	if [ -f "$OCSP_PIDFILE" ]; then
+		killproc -p $OCSP_PIDFILE -d 10
+		rm -f $OCSP_PIDFILE
+	else
+		PID=$(findPID)
+		if [ -n $PID ]; then
+			kill $PID
+		else
+			echo "OCSP Responder is not running."
+
+		fi
+	fi
+	
+	RETVAL=$?
+	echo
+
+	[ $RETVAL -eq 0 -a -f "/var/lock/subsys/ocsp" ] && rm -f /var/lock/subsys/ocsp
+}
+
+restart() {
+	stop
+	sleep 10 # give it a few moments to shut down
+	start
+}
+
+condrestart() {
+	[ -e "/var/lock/subsys/ocsp" ] && restart
+	return 0
+}
+
+status() {
+	PID=$(findPID)
+	if [ -n "$PID" ]; then
+		echo "OCSP Responder is running"
+		RETVAL=0
+	else 
+		echo "OCSP Responder is not running"
+		RETVAL=1
+	fi
+}
+
+findPID() {
+	echo `ps ax --width=1000 | grep ocsp | grep openssl | awk '{print $1}'`
+}
+
+# Handle how we were called.
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		restart
+		;;
+	condrestart)
+		condrestart
+		;;
+	status) 
+		status
+		;;
+	*)
+		echo "Usage $0 {start|stop|restart|status|condrestart}"
+		RETVAL=1
+esac
+
+exit $RETVAL
