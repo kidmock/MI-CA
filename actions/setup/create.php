@@ -22,7 +22,7 @@ $folders = array(
 	'data/ca/revoked',
 );
 
-copy($opensslcnfsmpl, $iopensslcnf);
+copy($opensslcnfsmpl, $opensslcnf);
 
 foreach ($folders as $pos=>$folder) {
 	if (file_exists($folder)) {
