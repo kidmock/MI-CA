@@ -8,8 +8,11 @@ $indexFile = "./data/ca/index.txt";
 $serialFile = "./data/ca/serial";
 $crlFile = "./data/ca/crlnumber";
 $configFile = "./config/config.php";
+$opensslcnfsmpl = "./config/openssl.cnf.sample";
+$opensslcnf = "./config/openssl.cnf";
 
 $folders = array(
+	'data',
 	'data/ca',
 	'data/ca/keys',
 	'data/ca/csr',
@@ -18,6 +21,9 @@ $folders = array(
 	'data/ca/cacerts',
 	'data/ca/revoked',
 );
+
+copy($opensslcnfsmpl, $iopensslcnf);
+
 foreach ($folders as $pos=>$folder) {
 	if (file_exists($folder)) {
 		if (!is_dir($folder)) {

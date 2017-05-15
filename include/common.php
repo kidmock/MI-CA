@@ -105,7 +105,7 @@ function printFooter() {
 </section></div>
     <footer>
         <section class="footer">
-            &copy; 2017 MI2BZ. All Rights Reserved.
+            
         </section>
     </footer>
 </body>

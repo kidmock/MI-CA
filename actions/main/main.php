@@ -41,7 +41,7 @@
 			</td>
 		</tr>
 		<tr>
-			<td><a href="index.php?type=admin"><p class="opsLink">Administartive Tasks</p></a></td>
+			<td><a href="index.php?type=admin"><p class="opsLink">Administrative Tasks</p></a></td>
 			<td>
 				<strong>Admin</strong> Tasks.
 				<p class="info">Admin Task</p>
