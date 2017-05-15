@@ -40,6 +40,15 @@ function getSerial() {
 	return $serial + 1;
 }
 
+function updateIndex( $cert) {
+                $sslindex = openssl_x509_parse($cert);
+                $index_file = "./data/ca/index.txt";
+                $serial = dechex((int)$sslindex['serialNumber']);
+                $indexappend = "V\t" . $sslindex['validTo'] . "\t\t". $serial . "\tunknown\t" . $sslindex['name'] ."\n"  ;
+                file_put_contents($index_file, $indexappend , FILE_APPEND | LOCK_EX);
+
+}
+
 function printHeaderbar() {
 	global $config;
 	global $theme;
