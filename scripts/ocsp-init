@@ -3,8 +3,9 @@
 # ocsp	Stops and starts an OpenSSL OCSP Responder
 #
 # chkconfig: 2345 99 1
-# description: Openfire is an XMPP server, which is a server that facilitates \
-#              XML based communication, such as chat.
+# description: OCSP (Online Certificate Status Protocol) is a standard 
+#                Internet protocol used for obtaining the revocation status 
+#                of an X.509 digital certificate
 # config: /etc/sysconfig/ocsp
 # pidfile: /var/run/ocsp.pid
 # 
