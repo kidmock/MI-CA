@@ -111,5 +111,8 @@ file_put_contents($ssconfig, $ssappend , FILE_APPEND | LOCK_EX);
         else {
                 print "Unable able to sign CSR";
         }
+
+        updateIndex($myCert);
+
 unlink($ssconfig);
 ?>

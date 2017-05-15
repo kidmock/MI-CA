@@ -227,6 +227,7 @@ if ($fp = fopen($csrFile, 'w')) {
                 print "<p><a href=\"$p12File\" download=\"" . $certName . ".pfx\">Download Cert P12 Format (IIS)</a> Passphrase is: <strong>".$passphrase ."</strong></p>\n";
 
                 print "<b>Your Cert:</b>\n<pre>$myCert</pre>\n";
+                updateIndex($myCert);
 
 unlink($certconfig);
 unlink($ssconfig);

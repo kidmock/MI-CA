@@ -185,7 +185,7 @@ print "Done<br/><br/>\n";
                 //print "<b>Your Cert:</b>\n<pre>$myCert</pre>\n";
                 print "<p><a href=\"$certFile\" download=\"" . $emailAddress . ".crt\">Download Cert</a></p>\n";
 
-
+                updateIndex($myCert);
 ?>
 
 
